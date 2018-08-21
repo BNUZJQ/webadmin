@@ -1,0 +1,308 @@
+<Window x:Name="MainWindow" x:Class="FCCT.View.CMainWindow"
+        xmlns:local="clr-namespace:FCCT.View"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+        Height="405" Width="850" MaxWidth="850" MaxHeight="405" ResizeMode="CanMinimize" Icon="logo1-1.ico">
+    <Window.Resources>
+        <local:StringToBoolConverter x:Key="stringToBoolConverter"/>
+        <Style x:Key="ListViewItemStyle" TargetType="{x:Type ListViewItem}">
+            <Setter Property="HorizontalContentAlignment" Value="Center"></Setter>
+        </Style>
+        <Style x:Key="chkBase" TargetType="CheckBox">
+            <Setter Property="IsChecked" Value="False"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="CheckBox">
+                        <DockPanel  Background="{TemplateBinding Background}" ToolTip="{TemplateBinding Content}" LastChildFill="False" Width="{TemplateBinding Width}">
+                            <Image Margin="2 0 0 0" DockPanel.Dock="Left" x:Name="_img"  Stretch="None" Source="/Images/chk_no.png"/>
+                            <TextBlock DockPanel.Dock="Left" Foreground="{TemplateBinding Foreground}" Margin="2 0 0 0" VerticalAlignment="Center" Text="{Binding Content,RelativeSource={RelativeSource TemplatedParent}}" />
+                        </DockPanel>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="true">
+                                <Setter TargetName="_img" Property="Source" Value="/Images/chk_yes.png"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="{x:Null}">
+                                <Setter TargetName="_img" Property="Source" Value="/Images/chk_null.png"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="100"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="radBase" TargetType="RadioButton">
+            <Setter Property="IsChecked" Value="False"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <DockPanel  Background="{TemplateBinding Background}" ToolTip="{TemplateBinding Content}" LastChildFill="False" Width="{TemplateBinding Width}">
+                            <Image Margin="2 0 0 0" DockPanel.Dock="Left" x:Name="_img"  Stretch="None" Source="/Images/rdo_no.png"/>
+                            <TextBlock DockPanel.Dock="Left" Margin="3 0 0 0" VerticalAlignment="Center" Foreground="{TemplateBinding Foreground}" Text="{TemplateBinding Content}" />
+                        </DockPanel>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="true">
+                                <Setter TargetName="_img" Property="Source" Value="/Images/rdo_yes.png"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="false">
+                                <Setter Property="Opacity" Value="0.3"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="0,0,0,-20">
+
+        <TabControl TabStripPlacement="Top" HorizontalAlignment="Stretch" Margin="10,5,10,0" Name="tab" VerticalAlignment="Top" Height="355" SelectedItem="{Binding M_curTabItem}" SelectedIndex="0">
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="SelectionChanged" >
+                    <i:InvokeCommandAction Command="{Binding m_TabSelectChangedCommand}"/>
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+            <TabItem Header="NR" Name="NR" Width="75">
+                <Grid x:Name="Grid_NR_Custom" Margin="477,4,9,-4" ScrollViewer.VerticalScrollBarVisibility="Disabled">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="2*" />
+                        <RowDefinition Height="3*"/>
+                        <RowDefinition Height="5*" />
+                    </Grid.RowDefinitions>
+                    <Label Content="SCS:" HorizontalAlignment="Left" VerticalAlignment="Top" Height="23" Width="36" FontWeight="Bold" Margin="0,18,0,0"/>
+
+                    <Label Content="Allowed BandWidth" HorizontalAlignment="Left" VerticalAlignment="Top" Height="23" Width="132" FontWeight="Bold" Margin="0"/>
+                    <Label Content="UE Power" HorizontalAlignment="Left" VerticalAlignment="Top" Height="23" Width="75" Margin="0" FontWeight="Bold" Grid.Row="2"/>
+                    <RadioButton Name="Refresh" Content="Refresh" HorizontalAlignment="Right"  VerticalAlignment="Top" GroupName="SCS" Checked="SCSChange" Visibility="Hidden"/>
+                    <RadioButton Name="RefreshOther" Content="Refresh" HorizontalAlignment="Right"  VerticalAlignment="Top" GroupName="SCS" Checked="SCSChange" Visibility="Hidden"/>
+                    <ListView x:Name="UEPowerList_NR" HorizontalAlignment="Left" Height="124" VerticalAlignment="Top" Width="316" Margin="0,28,0,0" Grid.Row="2" BorderBrush="#FF464646" Foreground="#FF727272" Background="#FFF9F9F9" ItemContainerStyle="{StaticResource ListViewItemStyle}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Focusable="False" IsTabStop="True" FontSize="14">
+                        <ListView.View>
+                            <GridView>
+                                <GridView.ColumnHeaderContainerStyle>
+                                    <Style BasedOn="{StaticResource {x:Type GridViewColumnHeader}}" TargetType="{x:Type GridViewColumnHeader}">
+                                        <Setter Property="IsHitTestVisible" Value="False"/>
+                                    </Style>
+                                </GridView.ColumnHeaderContainerStyle>
+                                <GridViewColumn Header="Class" Width="80" DisplayMemberBinding="{Binding Path=M_strClass}"/>
+                                <GridViewColumn Header="Max Power(dBm)" Width="140" DisplayMemberBinding="{Binding Path=M_FMaxPower}"/>
+                                <GridViewColumn Header="Tol(dB)" Width="80" DisplayMemberBinding="{Binding Path=M_strTol}"/>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                </Grid>
+
+            </TabItem>
+            <TabItem Header="LTE" Name="LTE" Width="75">
+                <Grid x:Name="Grid_LTE_Custom" Margin="477,4,9,-4" ScrollViewer.VerticalScrollBarVisibility="Disabled">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="1*" />
+                        <RowDefinition Height="3*" />
+                    </Grid.RowDefinitions>
+                    <Label Content="Allowed BandWidth" HorizontalAlignment="Left" VerticalAlignment="Top" Height="23" Width="132" FontWeight="Bold" Margin="0"/>
+                    <Label Content="UE Power" HorizontalAlignment="Left" VerticalAlignment="Top" Height="23" Width="75" Margin="0" FontWeight="Bold" Grid.Row="1"/>
+                    <ListView x:Name="UEPowerList_LTE" HorizontalAlignment="Left" Height="204" VerticalAlignment="Top" Width="316" Margin="0,28,0,0" Grid.Row="1" BorderBrush="#FF464646" Foreground="#FF727272" Background="#FFF9F9F9" ItemContainerStyle="{StaticResource ListViewItemStyle}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" FontSize="14">
+                        <ListView.View>
+                            <GridView>
+                                <GridView.ColumnHeaderContainerStyle>
+                                    <Style BasedOn="{StaticResource {x:Type GridViewColumnHeader}}" TargetType="{x:Type GridViewColumnHeader}">
+                                        <Setter Property="IsHitTestVisible" Value="False"/>
+                                    </Style>
+                                </GridView.ColumnHeaderContainerStyle>
+                                <GridViewColumn Header="Class" Width="80" DisplayMemberBinding="{Binding Path=M_strClass}"/>
+                                <GridViewColumn Header="Max Power(dBm)" Width="140" DisplayMemberBinding="{Binding Path=M_FMaxPower}"/>
+                                <GridViewColumn Header="Tol(dB)" Width="80" DisplayMemberBinding="{Binding Path=M_strTol}"/>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+
+                </Grid>
+
+
+            </TabItem>
+            <TabItem Header="WCDMA" Name="WCDMA" Width="75">
+                <Grid x:Name="Grid_WCDMA_Custom" Margin="477,4,9,-4" ScrollViewer.VerticalScrollBarVisibility="Disabled">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="1*" />
+                        <RowDefinition Height="3*" />
+                    </Grid.RowDefinitions>
+                    <Label Content="Allowed BandWidth" HorizontalAlignment="Left" VerticalAlignment="Top" Height="23" Width="132" FontWeight="Bold" Margin="0"/>
+                    <Label Content="UE Power" HorizontalAlignment="Left" VerticalAlignment="Top" Height="23" Width="75" Margin="0" FontWeight="Bold" Grid.Row="1"/>
+                    <ListView x:Name="UEPowerList_WCDMA" HorizontalAlignment="Left" Height="204" VerticalAlignment="Top" Width="316" Margin="0,28,0,0" Grid.Row="1" BorderBrush="#FF464646" Foreground="#FF727272" Background="#FFF9F9F9" ItemContainerStyle="{StaticResource ListViewItemStyle}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" FontSize="14">
+                        <ListView.View>
+                            <GridView>
+                                <GridView.ColumnHeaderContainerStyle>
+                                    <Style BasedOn="{StaticResource {x:Type GridViewColumnHeader}}" TargetType="{x:Type GridViewColumnHeader}">
+                                        <Setter Property="IsHitTestVisible" Value="False"/>
+                                    </Style>
+                                </GridView.ColumnHeaderContainerStyle>
+                                <GridViewColumn Header="Class" Width="80" DisplayMemberBinding="{Binding Path=M_strClass}"/>
+                                <GridViewColumn Header="Max Power(dBm)" Width="140" DisplayMemberBinding="{Binding Path=M_FMaxPower}"/>
+                                <GridViewColumn Header="Tol(dB)" Width="80" DisplayMemberBinding="{Binding Path=M_strTol}"/>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+
+                </Grid>
+
+            </TabItem>
+            <TabItem Header="GSM" Name="GSM" Width="75">
+                <Grid x:Name="Grid_GSM_Custom" Margin="477,4,9,-4" ScrollViewer.VerticalScrollBarVisibility="Disabled">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="1*" />
+                        <RowDefinition Height="6*" />
+                    </Grid.RowDefinitions>
+                    <Label Content="Allowed BandWidth" HorizontalAlignment="Left" VerticalAlignment="Top" Height="23" Width="132" FontWeight="Bold" Margin="0"/>
+                    <Label Content="UE Power" HorizontalAlignment="Left" VerticalAlignment="Top" Height="23" Width="75" Margin="0" FontWeight="Bold" Grid.Row="1"/>
+                    <ListView x:Name="UEPowerList_GSM" HorizontalAlignment="Left" Height="197" VerticalAlignment="Top" Width="316" Margin="0,70,0,0" Grid.Row="1" BorderBrush="#FF464646" Foreground="#FF727272" Background="#FFF9F9F9" ItemContainerStyle="{StaticResource ListViewItemStyle}" UseLayoutRounding="False" ScrollViewer.HorizontalScrollBarVisibility="Disabled" FontSize="14">
+                        <ListView.View>
+                            <GridView>
+                                <GridView.ColumnHeaderContainerStyle>
+                                    <Style BasedOn="{StaticResource {x:Type GridViewColumnHeader}}" TargetType="{x:Type GridViewColumnHeader}">
+                                        <Setter Property="IsHitTestVisible" Value="False"/>
+                                    </Style>
+                                </GridView.ColumnHeaderContainerStyle>
+                                <GridViewColumn x:Name="PCL" Header="PCL" Width="70" DisplayMemberBinding="{Binding Path=M_strPCL}"/>
+                                <GridViewColumn x:Name="Output" Header="Output(dBm)" Width="120" DisplayMemberBinding="{Binding Path=M_FOutput}"/>
+                                <GridViewColumn x:Name="Tol" Header="Tol(dB)" Width="100" DisplayMemberBinding="{Binding Path=M_strTol}"/>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="CDMA" Name="CDMA" Width="75" IsEnabled="False" Visibility="Hidden">
+                <Grid x:Name="Grid_CDMA_Custom" Margin="477,4,9,-4" ScrollViewer.VerticalScrollBarVisibility="Disabled">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="1*" />
+                        <RowDefinition Height="3*" />
+                    </Grid.RowDefinitions>
+                    <Label Content="Allowed BandWidth" HorizontalAlignment="Left" VerticalAlignment="Top" Height="23" Width="132" FontWeight="Bold" Margin="0"/>
+                    <Label Content="UE Power" HorizontalAlignment="Left" VerticalAlignment="Top" Height="23" Width="75" Margin="0" FontWeight="Bold" Grid.Row="1"/>
+                    <ListView x:Name="UEPowerList_CDMA" HorizontalAlignment="Left" Height="204" VerticalAlignment="Top" Width="316" Margin="0,28,0,0" Grid.Row="1" BorderBrush="#FF464646" Foreground="#FF727272" Background="#FFF9F9F9" ItemContainerStyle="{StaticResource ListViewItemStyle}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                        <ListView.View>
+                            <GridView>
+                                <GridView.ColumnHeaderContainerStyle>
+                                    <Style BasedOn="{StaticResource {x:Type GridViewColumnHeader}}" TargetType="{x:Type GridViewColumnHeader}">
+                                        <Setter Property="IsHitTestVisible" Value="False"/>
+                                    </Style>
+                                </GridView.ColumnHeaderContainerStyle>
+                                <GridViewColumn Header="Class" Width="80" DisplayMemberBinding="{Binding Path=M_strClass}"/>
+                                <GridViewColumn Header="Max Power(dBm)" Width="140" DisplayMemberBinding="{Binding Path=M_FMaxPower}"/>
+                                <GridViewColumn Header="Tol(dB)" Width="80" DisplayMemberBinding="{Binding Path=M_strTol}"/>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+
+                </Grid>
+
+            </TabItem>
+            <TabItem Header="TD-SCDMA" Name="TDSCDMA" Width="85" IsEnabled="False" Visibility="Hidden">
+                <Grid x:Name="Grid_TDSCDMA_Custom" Margin="477,4,9,-4" ScrollViewer.VerticalScrollBarVisibility="Disabled">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="1*" />
+                        <RowDefinition Height="3*" />
+                    </Grid.RowDefinitions>
+                    <Label Content="Allowed BandWidth" HorizontalAlignment="Left" VerticalAlignment="Top" Height="23" Width="132" FontWeight="Bold" Margin="0"/>
+                    <Label Content="UE Power" HorizontalAlignment="Left" VerticalAlignment="Top" Height="23" Width="75" Margin="0" FontWeight="Bold" Grid.Row="1"/>
+                    <ListView x:Name="UEPowerList_TDSCDMA" HorizontalAlignment="Left" Height="204" VerticalAlignment="Top" Width="316" Margin="0,28,0,0" Grid.Row="1" BorderBrush="#FF464646" Foreground="#FF727272" Background="#FFF9F9F9" ItemContainerStyle="{StaticResource ListViewItemStyle}" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                        <ListView.View>
+                            <GridView>
+                                <GridView.ColumnHeaderContainerStyle>
+                                    <Style BasedOn="{StaticResource {x:Type GridViewColumnHeader}}" TargetType="{x:Type GridViewColumnHeader}">
+                                        <Setter Property="IsHitTestVisible" Value="False"/>
+                                    </Style>
+                                </GridView.ColumnHeaderContainerStyle>
+                                <GridViewColumn Header="Class" Width="80" DisplayMemberBinding="{Binding Path=M_strClass}"/>
+                                <GridViewColumn Header="Max Power(dBm)" Width="140" DisplayMemberBinding="{Binding Path=M_FMaxPower}"/>
+                                <GridViewColumn Header="Tol(dB)" Width="80" DisplayMemberBinding="{Binding Path=M_strTol}"/>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+
+                </Grid>
+            </TabItem>
+
+
+        </TabControl>
+        <Grid x:Name="LeftGrid" HorizontalAlignment="Left" Height="325" VerticalAlignment="Top" Width="459" Margin="21,35,0,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="59*" />
+                <RowDefinition Height="48*" />
+                <RowDefinition Height="129*" />
+                <RowDefinition Height="89*" />
+            </Grid.RowDefinitions>
+            <ComboBox Name="BandBox" HorizontalAlignment="Left" VerticalAlignment="Center" Width="162" BorderThickness="1" Margin="0,24,0,13" ItemsSource="{Binding M_RATView.M_curBandList}" DisplayMemberPath="M_strName" SelectedItem="{Binding M_RATView.M_curBandInfo,Mode=TwoWay}" SelectedIndex="0" Height="22">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="SelectionChanged" >
+                        <i:InvokeCommandAction Command="{Binding M_RATView.m_ComboBoxSelectChangedCommand}"/>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </ComboBox>
+            <Label Content="Band" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,-8,0,0" Padding="5,5,3,5" BorderThickness="0,3,0,0" Height="29" Width="37"/>
+            <Label x:Name="DlChanName" Content="DL Channel" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="222,-8,0,0" Padding="5,5,3,5" BorderThickness="0,3,0,0" InputMethod.IsInputMethodEnabled="False" Height="29" Width="74"/>
+            <Label x:Name="UlChanName" Content="UL Channel" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="338,-8,0,0" Padding="5,5,3,5" BorderThickness="0,3,0,0" InputMethod.IsInputMethodEnabled="False" Height="29" Width="74"/>
+
+            <TextBox x:Name="ChanDl" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Top" Width="75" Margin="222,22,0,0" KeyDown="ChanDlKeyDown" MaxLength="10" MaxLines="1" LostFocus="ChanDlLostFocus"/>
+            <TextBox x:Name="ChanUl" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Bottom" Width="75" Margin="339,0,0,15" MaxLength="10" MaxLines="1" KeyDown="ChanUlKeyDown" LostFocus="ChanUlLostFocus"/>
+            <ScrollBar x:Name="ScrollBar" HorizontalAlignment="Left" Height="17" VerticalAlignment="Top" Orientation="Horizontal" Margin="0,7,0,0" Width="437" Grid.Row="1" SmallChange="1" Maximum="10" LargeChange="20">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="ValueChanged" >
+                        <i:InvokeCommandAction Command="{Binding M_RATView.m_ScrollCommand}"/>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </ScrollBar>
+            <Label x:Name="DlName" Content="BTS TX(Fwd/DL)" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Row="1" Margin="52,33,0,0" Height="26" Width="101" Grid.RowSpan="2"/>
+            <Label x:Name="UlName" Content="UE TX(Rev/UL)" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Row="1" Margin="265,35,0,0" Height="26" Width="93" Grid.RowSpan="2"/>
+
+            <TextBox x:Name="FreqDl" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Row="2" Margin="52,14,0,0" Height="26" Width="100" Foreground="White" FontWeight="Bold" HorizontalContentAlignment="Center" Background="Green" FontSize="14" KeyDown="FreqDlKeyDown" MaxLength="8" MaxLines="1" LostFocus="FreqDlLostFocus"/>
+            <Label x:Name="DlL" Content="L:" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Row="2" Margin="32,40,0,0"  Width="50" Foreground="Black" FontSize="12" Height="26"/>
+            <Label x:Name="DlML" Content="ML:" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Row="2" Margin="32,60,0,0" Width="50" Foreground="Black" FontSize="12" Height="26"/>
+            <Label x:Name="DlMH" Content="MH:" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Row="2" Margin="32,80,0,0" Width="50" Foreground="Black" FontSize="12" Height="26"/>
+            <Label x:Name="DlH" Content="H:" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Row="2" Margin="32,100,0,0" Width="50" Foreground="Black" FontSize="12" Height="26"/>
+
+            <Label x:Name="DLMinInfo" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Row="2" Margin="60,40,0,0" Width="200" Foreground="Black" FontSize="12" Height="26"/>
+            <Label x:Name="DLMLInfo" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Row="2" Margin="60,60,0,0"  Width="200" Foreground="Black" FontSize="12" Height="26"/>
+            <Label x:Name="DLMHInfo" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Row="2" Margin="60,80,0,0"  Width="200" Foreground="Black" FontSize="12" Height="26"/>
+            <Label x:Name="DLMaxInfo" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Row="2" Margin="60,100,0,0"  Width="200" Foreground="Black" FontSize="12" Height="26"/>
+
+            <TextBox x:Name="FreqUl"  HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Row="2" Margin="262,14,0,0" Height="26" Width="100" Foreground="White" FontWeight="Bold" HorizontalContentAlignment="Center" Background="Blue" IsHitTestVisible="True" FontSize="14" KeyDown="FreqUlKeyDown" MaxLength="8" MaxLines="1" LostFocus="FreqUlLostFocus"/>
+            <Label x:Name="UlL" Content="L:" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Row="2" Margin="242,40,0,0" Height="26" Width="50" Foreground="Black" FontSize="12"/>
+            <Label x:Name="UlML" Content="ML:" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Row="2" Margin="242,60,0,0" Height="26" Width="50" Foreground="Black" FontSize="12"/>
+            <Label x:Name="UlMH" Content="MH:" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Row="2" Margin="242,80,0,0" Height="26" Width="50" Foreground="Black" FontSize="12"/>
+            <Label x:Name="UlH" Content="H:" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Row="2" Margin="242,100,0,0" Height="26" Width="50" Foreground="Black" FontSize="12"/>
+
+            <Label x:Name="ULMinInfo" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Row="2" Margin="270,40,0,0" Height="26" Width="200" Foreground="Black" FontSize="12"/>
+            <Label x:Name="ULMLInfo" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Row="2" Margin="270,60,0,0" Height="26" Width="200" Foreground="Black" FontSize="12"/>
+            <Label x:Name="ULMHInfo" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Row="2" Margin="270,80,0,0" Height="26" Width="200" Foreground="Black" FontSize="12"/>
+            <Label x:Name="ULMaxInfo" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Row="2" Margin="270,100,0,0" Height="26" Width="200" Foreground="Black" FontSize="12"/>
+
+
+            <Label Content="0(GHz)" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Row="2" Margin="-5,127,0,0" Height="22" Width="42" FontSize="9" Grid.RowSpan="2"/>
+            <Label Content="6" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Row="2" Margin="350,127,0,0" Height="22" Width="17" FontSize="9" Grid.RowSpan="2"/>
+            <Label Content="20" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Row="2" Margin="371,127,0,0" Height="22" Width="34" FontSize="9" Grid.RowSpan="2"/>
+            <Label Content="55" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Row="2" Margin="436,127,-11,0" Height="22" Width="34" FontSize="9" Grid.RowSpan="2"/>
+
+
+            <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="15" VerticalAlignment="Top" Width="360" Margin="0,15,0,0" Grid.Row="3" Background="#FF636363"/>
+            <Label Content="···" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Row="3" Margin="360,10,0,0" Height="20" Width="20"/>
+            <Border BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="15" VerticalAlignment="Top" Width="70" Margin="380,15,0,0" Grid.Row="3" Background="#FF636363"/>
+            <Label x:Name="BandBar" BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="15" VerticalAlignment="Top" Width="300" Margin="80,45,79,0" Grid.Row="3" HorizontalContentAlignment="Center"  VerticalContentAlignment="Center" Padding="0" FontSize="10" />
+            <Label x:Name="BandBarInfo" BorderBrush="Transparent" BorderThickness="0" HorizontalAlignment="Left" Height="13" VerticalAlignment="Top" Width="60" Grid.Row="3" HorizontalContentAlignment="Center" Padding="0" Background="#FFF9F9F9" VerticalContentAlignment="Center" FontSize="10" Panel.ZIndex="1" />
+            <Label Content="Frequency(MHz)" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Row="3" Margin="168,60,0,0" FontSize="11" Height="26" Width="104"/>
+            <Label Content="Channel Spacing(KHz):" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Row="3" Margin="300,61,0,0" FontSize="10" Height="26" Width="126"/>
+            <Label x:Name="ChanSpacing"  HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Row="3" Margin="415,61,-11,0" FontSize="10" Height="26" Width="62"/>
+
+            <Canvas x:Name="BandDisplayCanvas" HorizontalAlignment="Left" Height="89" VerticalAlignment="Top" Width="459" Grid.Row="3"/>
+            <Border x:Name="BandBorder" BorderBrush="Black" BorderThickness="1" HorizontalAlignment="Left" Height="15" VerticalAlignment="Top" Width="{Binding M_RATView.M_DBandBorderWidth}" Margin="{Binding M_RATView.M_ThickBandBorderMargin}" Grid.Row="3" Background="#FFEAEAEA"/>
+
+        </Grid>
+
+    </Grid>
+</Window>
